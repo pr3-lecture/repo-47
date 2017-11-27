@@ -2,6 +2,10 @@
 ; PR3 Lisp
 ; Übungsblatt1.pdf
 
+; Schmidt, Mario 1529889
+; Kryvoruchko, Sergej 1532130
+; https://github.com/pr3-lecture/repo-45/tree/master/lisp
+
 
 ; A1 a)
 ; 1. Element an letzte Stelle verschieben
