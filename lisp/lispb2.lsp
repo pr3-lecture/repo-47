@@ -66,7 +66,7 @@
         ((listp (car mylist)) ; wenn Element eine (geschachtelte) Liste ist
           (+
             0
-            (my_lengthR (car mylist)) ; berechne LÃ¤nge der geschachtelten Liste
+            (my_lengthR (car mylist)) ; berechne Länge der geschachtelten Liste
             (my_lengthR (cdr mylist)) ; berechne Rest
           )
         )
@@ -82,7 +82,7 @@
     )
   )
   
-  ; bei Atomen, hoch zÃ¤hlen und Rest berechnen
+  ; bei Atomen, hoch zählen und Rest berechnen
   ; bei Listen, diese berechnen und Rest berechnen
 
 )
@@ -142,7 +142,7 @@
   tree                               ; Baum zurueckgeben
 )
 (setq testTreeInsertFile '(10))
-(setq testTreeInsertFile  (insertfile testTreeInsertFile "tree.txt"))
+;(setq testTreeInsertFile  (insertfile testTreeInsertFile "tree.txt"))
 
 ; Dateiinhalt tree.txt: 5 15 2 7 1 17
 
@@ -160,8 +160,8 @@
 
 ; leerer Baum => Wert nicht im Baum
 ; gesuchter Wert = Wert von Wurzel => ist im Baum
-; Wert kleiner Wurzel => rekursiv contains fÃ¼r linken Teilbaum
-; Wert grÃ¶ÃŸer Wurzel => rekursiv contains fÃ¼r rechten Teilbaum
+; Wert kleiner Wurzel => rekursiv contains für linken Teilbaum
+; Wert größer Wurzel => rekursiv contains für rechten Teilbaum
 
 
 (defun size (tree)
@@ -170,28 +170,21 @@
 (size testTreeA)
 
 
-(defun heightHelp (tree level)
+(defun height (tree)
   (cond
     ((null tree) 0)
     (t 
-      (max (+ 1 (heightHelp (leftTree tree) (+ level 1)))
-           (+ 1 (heightHelp (rightTree tree) (+ level 1)))
+      (max (+ 1 (height (leftTree tree)))
+           (+ 1 (height (rightTree tree)))
       )
     )
   )
-)
-(heightHelp '(5 (1)) 0)
-(heightHelp testTreeA 0)
-(heightHelp testTreeB 0)
-
-
-(defun height (tree)
-  (heightHelp tree 0)
 )
 (height '())
 (height '(10))
 (height '(10 (5)))
 (height '(10 () (15)))
+(height testTreeA)
 (height testTreeB)
 
 
@@ -205,9 +198,9 @@
 (getMin '(10 (5)))
 (getMin testTreeA)
 
-; wenn Knotenwert nil (leerer Baum), gib nil zurÃ¼ck
-; wenn es keinen linken Teilbaum gibt, gib Knoten der Wurzel zurÃ¼ck
-; ansonsten getMin rekursiv fÃ¼r linken Teilbaum aufrufen
+; wenn Knotenwert nil (leerer Baum), gib nil zurück
+; wenn es keinen linken Teilbaum gibt, gib Knoten der Wurzel zurück
+; ansonsten getMin rekursiv für linken Teilbaum aufrufen
 
 
 (defun getMax (tree)
@@ -219,6 +212,45 @@
 )
 (  getMax '(10 (5) (15 (14) (19)))  )
 (getMax testTreeA)
+
+
+(defun removeVal (tree val)
+  (cond
+    (
+      (null (rootValue tree))
+        nil
+    )
+    (
+      (and (= val (rootValue tree)) (= (height tree) 1))
+        nil
+    )
+    (
+      ( and (= val (rootValue tree)) (null (rightTree tree)) )
+        (createTree (getMax (leftTree tree)) (removeVal (leftTree tree) (getMax (leftTree tree))) nil)
+    )
+    (
+      (= val (rootValue tree))
+        (createTree (getMin (rightTree tree)) (leftTree tree) (removeVal (rightTree tree) (getMin (rightTree tree))) )
+    )
+    (
+      (< val (rootValue tree))
+        (createTree (rootValue tree) (removeVal (leftTree tree) val) (rightTree tree))
+    )
+    (
+      (> val (rootValue tree))
+        (createTree (rootValue tree) (leftTree tree) (removeVal (rightTree tree) val))
+    )
+  )
+)
+(removeVal '() 5)
+(setq testTreeRemoveVal '(10 (5 (2 (1) NIL) (7)) (15 NIL (17))))
+(setq testTreeRemoveVal (removeVal testTreeRemoveVal 10))
+(setq testTreeRemoveVal (removeVal testTreeRemoveVal 5))
+(setq testTreeRemoveVal (removeVal testTreeRemoveVal 15))
+(setq testTreeRemoveVal (removeVal testTreeRemoveVal 2))
+(setq testTreeRemoveVal (removeVal testTreeRemoveVal 7))
+(setq testTreeRemoveVal (removeVal testTreeRemoveVal 1))
+(setq testTreeRemoveVal (removeVal testTreeRemoveVal 17))
 
 
 (defun isEmpty (tree)
@@ -234,7 +266,7 @@
 (defun printLevelorderHelp (tree level)
   (cond
     ((null tree) nil)
-    ((= level 1) (PRINC (rootValue tree)) (PRINC '+))
+    ((= level 1) (PRINC (rootValue tree)) (PRINC " "))
     ((> level 1) 
       (printLevelorderHelp (leftTree tree) (- level 1))
       (printLevelorderHelp (rightTree tree) (- level 1))
@@ -245,13 +277,56 @@
 
 
 (defun printLevelorder (tree)
-  (setq height 4)
   (setq i 0)
-  (loop while (<= i 4) do
+  (loop while (<= i (height tree)) do
     (printLevelorderHelp tree i)
     (setq i (+ i 1))
-    (PRINT '-)
+    (format t "~%")
   )
 )
 ;(printLevelorder testTreeA)
+
+
+(setq testTreeMenu '())
+
+(defun menu ()
+  (setq bed 1)
+  (loop while (= bed 1) do
+    (format t "~%")
+    (format t "=====================================~%")
+    (format t "1 insert~%")
+    (format t "2 insertfile~%")
+    (format t "3 contains~%")
+    (format t "4 size~%")
+    (format t "5 height~%")
+    (format t "6 getMin~%")
+    (format t "7 getMax~%")
+    (format t "8 removeVal~%")
+    (format t "9 isEmpty~%")
+    (format t "10 addAll~%")
+    (format t "11 printLevelorder~%")
+    (format t "0 exit~%")
+    (format t "---~%")
+    (format t "choose ")
+    (setq num (read))
+    (format t "---~%")
+    (case num
+      (1 (PRINC "insert number: ") (PRINC (setq testTreeMenu (insert testTreeMenu (read)))))
+      (2 (PRINC "file: ") (PRINC (setq testTreeMenu (insertfile testTreeMenu (read)))))
+      (3 (PRINC "contains number: ") (PRINC (contains testTreeMenu (read))))
+      (4 (PRINC "size => ") (PRINC (size testTreeMenu)))
+      (5 (PRINC "height => ") (PRINC (height testTreeMenu)))
+      (6 (PRINC "min => ") (PRINC (getMin testTreeMenu)))
+      (7 (PRINC "max => ") (PRINC (getMax testTreeMenu)))
+      (8 (PRINC "remove number: ") (setq testTreeMenu (PRINC (removeVal testTreeMenu (read)))))
+      (9 (PRINC "is empty => ") (PRINC (isEmpty testTreeMenu)))
+      (10 (PRINC (addAll testTreeMenu testTreeB)))
+      (11 (PRINC (printLevelorder testTreeMenu)))
+      
+      (0 (PRINC "exit") (setq bed 0))
+      (t (PRINC "error"))
+    )
+  )
+)
+(menu)
 
