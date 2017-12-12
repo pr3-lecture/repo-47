@@ -3,6 +3,11 @@
 ; blatt2.pdf
 
 
+; Schmidt, Mario 1529889
+; Kryvoruchko, Sergej 1532130
+; https://github.com/pr3-lecture/repo-45/blob/master/lisp/Aufgabenblatt%202.md
+
+
 ;       10
 ;      /  \
 ;     5    15
@@ -263,6 +268,22 @@
 (isEmpty '())
 
 
+(defun addAll (tree otherTree)
+  (cond
+    ((null otherTree) tree)
+    ((null tree) otherTree)
+    (t
+      (setq tree (insert tree (rootValue otherTree)))
+      (setq tree (addAll tree (leftTree  otherTree)))
+      (setq tree (addAll tree (rightTree otherTree)))
+    )
+  )
+)
+(addAll '(10) '(15 (12)))
+(addAll '(10) '(15 () (20 (25 (23) (30)))))
+(addAll testTreeA testTreeB)
+
+
 (defun printLevelorderHelp (tree level)
   (cond
     ((null tree) nil)
@@ -320,7 +341,7 @@
       (7 (PRINC "max => ") (PRINC (getMax testTreeMenu)))
       (8 (PRINC "remove number: ") (setq testTreeMenu (PRINC (removeVal testTreeMenu (read)))))
       (9 (PRINC "is empty => ") (PRINC (isEmpty testTreeMenu)))
-      (10 (PRINC (addAll testTreeMenu testTreeB)))
+      (10 (PRINC (PRINC (setq testTreeMenu (addAll testTreeMenu testTreeB)))))
       (11 (PRINC (printLevelorder testTreeMenu)))
       
       (0 (PRINC "exit") (setq bed 0))
@@ -329,4 +350,3 @@
   )
 )
 (menu)
-
